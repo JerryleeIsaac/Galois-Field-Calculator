@@ -3,17 +3,18 @@ from input_error import InputError
 class Polynomial:
     def __init__(self, x="", irreducible=False, max_coeff=7):
         self.irreducible = irreducible
-        self.coeffs = self._clean(x)
-        self.b_coeffs = [
-            list(int(c) for c in bin(coeff)[2:]) for coeff in self.coeffs
-        ]
 
+        self.coeffs = self._clean(x)
         self.degree = len(self.coeffs) - 1
         if self.irreducible:
-            self.max_coeff = 2^(self.degree) - 1
+            self.max_coeff = 2**(self.degree) - 1
+            self.b_coeffs = "".join(str(e) for e in self.coeffs)
         else:
+            self.b_coeffs = [
+                bin(coeff)[2:] for coeff in self.coeffs
+            ]
             self.max_coeff = max_coeff
-        self._validity_check()
+            self._validity_check()
 
 
     def import_coeffs(self, x):
