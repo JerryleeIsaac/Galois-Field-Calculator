@@ -159,7 +159,7 @@ class GaloisFieldCalculator:
                 c = xb_coeffs[i]
             if i < len(y_coeffs):
                 b = str(y_coeffs[i])
-                d = xb_coeffs[i]
+                d = yb_coeffs[i]
             
             l = len(a)
             if l < len(b):
@@ -288,7 +288,12 @@ class GaloisFieldCalculator:
 
         quotient = []
 
+        self.dens = []
+        self.remainders = []
         den = [i for i in y_coeffs]
+        self.dens.append(den)
+        self.remainders.append(remainder)
+
         while num_len >= den_len:
             diff = num_len - den_len
 
@@ -319,6 +324,8 @@ class GaloisFieldCalculator:
             else:
                 quotient.append(0)
 
+            self.dens.append(den)
+            self.remainders.append(remainder)
             num_len -= 1
 
         # print quotient, remainder
@@ -453,22 +460,22 @@ if __name__ == "__main__":
 
         Calculator = GaloisFieldCalculator(P)
         
-        Sum = Calculator.add(A, B)
+        Sum = Calculator.detailed_add(A, B)
         
         print "Sum of {} and {}".format(A, B)
         print Sum
 
-        Difference = Calculator.subtract(A, B)
+        Difference = Calculator.detailed_subtract(A, B)
         
         print "Difference of {} and {}".format(A, B)
         print Difference 
 
-        Product = Calculator.multiply(A,B)
+        Product = Calculator.detailed_multiply(A,B)
 
         print "Product of {} and {}".format(A, B)
         print Product 
 
-        Quotient, Remainder = Calculator.divide(A,B)
+        Quotient, Remainder = Calculator.detailed_divide(A,B)
 
         print "Quotient {} and {}".format(A, B)
         print Quotient
