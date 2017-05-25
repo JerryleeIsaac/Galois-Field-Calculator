@@ -8,23 +8,22 @@ Clone the repository in your machine
 
 ```
 git clone https://github.com/JerryleeIsaac/Galois-Field-Calculator.git GaloisFieldCalculator
+cd GaloisFieldCalculator
+./install.sh
 ```
 
 # How to use
 
-`cd GaloisFieldCalculator/code`
-
 ## For unix systems
 
-`./main.py`
-
-If the above command doesnt work, try this command `chmod +x main.py` and then `./main.py`
+`./Calculator`
 
 ## For windows
 
-Download python2.7
-
-`python main.py`
+* Download python2.7 from the [official python repository](https://www.python.org/downloads/windows/)
+* Open cmd
+* Change to the directory where the code is. `cd GaloisFieldCalculator/code`
+* Run the command `python main.py`. Make sure that you have installed python in your PATH
 
 # Feedback
 

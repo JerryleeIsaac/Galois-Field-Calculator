@@ -289,7 +289,7 @@ class GaloisFieldCalculator:
             q_string += "%d " %(i)
 
         if len(y_coeffs) > len(x.coeffs):
-            print "Numerator less than denominator. Reminader is {}".format(x_string)
+            print "Numerator less than denominator. Remainder is {}".format(x_string)
             return (Q, R)
 
         os_2 = y_string + "|" + x_string
@@ -361,9 +361,6 @@ class GaloisFieldCalculator:
             den = den[:den_len]
             den += [0 for i in range(diff)]
 
-            # print "%20s, %20s" %(remainder, den)
-            # print len(den), len(remainder)
-
             if len(den) <= len(remainder):
                 b_rem = bin(remainder[0])[2:]
                 b_den = bin(den[0])[2:]
@@ -390,8 +387,6 @@ class GaloisFieldCalculator:
             self.remainders.append(remainder)
 
             num_len -= 1
-
-        # print quotient, remainder
 
         Q = Polynomial()
         R = Polynomial()
@@ -451,15 +446,12 @@ class GaloisFieldCalculator:
                 prod = int(bx_coeffs[bx_digit]) * int(by_coeffs[by_digit])
                 binary_string = str(prod) + binary_string
 
-            # binary_string = "0"*(len(by_coeffs) - (by_digit + 1)) + binary_string
             b_sums.append(binary_string)
 
         sum_string = b_sums[0]
 
         for i in range(1, len(b_sums)):
             sum_string = bin(int(sum_string, 2) ^ int(b_sums[i], 2))[2:]
-        # print b_sums
-        # print sum_string
 
         product = self._gf_reduce(sum_string)
 
@@ -473,21 +465,17 @@ class GaloisFieldCalculator:
         """
         remainder = x
 
-        # print "num: {}, den: {}".format(x,y)
-            
         num_len = len(x)
         den_len = len(y)
 
         quotient = ""
 
-        # print "%20s, %20s, %20s" % ("num/remainder", "den", "quotient")
         while num_len >= den_len:
             diff = num_len - den_len
             remainder = "0"*(num_len - len(remainder)) + remainder
 
             den = y + "0"*diff
 
-            # print "%20s, %20s, %20s" % (remainder, den, quotient)
             if remainder[0] == "1":
                 remainder = bin(int(remainder, 2) ^ int(den, 2))[2:]
                 quotient += "1"
@@ -500,7 +488,6 @@ class GaloisFieldCalculator:
         if not quotient:
             quotient = "0"
 
-        # print "q: {}, r:{}".format(quotient, remainder)
         return (quotient, remainder)
         
 
@@ -545,5 +532,3 @@ if __name__ == "__main__":
         if Remainder.coeffs:
             print "Remainder:"
             print Remainder
-
-        # print Calculator._gf_divide("111", "100")
