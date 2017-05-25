@@ -5,6 +5,9 @@ class Polynomial:
         self.irreducible = irreducible
 
         self.coeffs = self._clean(x)
+        if not self.coeffs:
+            self.coeffs = [0]
+
         self.degree = len(self.coeffs) - 1
         if self.irreducible:
             self.max_coeff = 2**(self.degree) - 1
@@ -22,6 +25,9 @@ class Polynomial:
         for coeff in x:
             if self.coeffs or coeff:
                 self.coeffs.append(coeff)
+
+        if not self.coeffs:
+            self.coeffs = [0]
 
         self.b_coeffs = [
             bin(coeff)[2:] for coeff in self.coeffs
@@ -63,7 +69,5 @@ class Polynomial:
 
             if i != self.degree:
                 string += " + "
-        if string == "":
-            string = "0"
 
         return string

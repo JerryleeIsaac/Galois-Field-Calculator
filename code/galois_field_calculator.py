@@ -5,6 +5,90 @@ class GaloisFieldCalculator:
     def __init__(self, p):
         self.p = p
 
+    def detailed_add(self, x, y):
+        """
+        Verbose version of the add operation
+        """
+        z = self.add(x, y)
+
+        x_coeffs = x.coeffs[::-1]
+        y_coeffs = y.coeffs[::-1]
+        xb_coeffs = x.b_coeffs[::-1]
+        yb_coeffs = y.b_coeffs[::-1]
+
+        if x.degree > y.degree:
+            for i in range(x.degree - y.degree):
+                y_coeffs.append(0)
+                yb_coeffs.append("0")
+        elif y.degree > x.degree:
+            for i in range(y.degree - x.degree):
+                x_coeffs.append(0)
+                xb_coeffs.append("0")
+
+        output_string_1 = "    "
+
+        output_string_2 = "XOR "
+
+        for a,b in zip(x_coeffs[::-1], y_coeffs[::-1]):
+            longer = str(a)
+
+            if len(str(b)) > len(str(a)):
+                longer = str(b)
+
+            pad = len(longer)
+            
+            output_string_1 += "%*s " %(pad, str(a))
+            output_string_2 += "%*s " %(pad, str(b))
+
+        print "-------------------------------------------------------------"
+        print "Align all coefficients, removing the '+' symbol between terms"
+        print "-------------------------------------------------------------"
+        print "="*len(output_string_1)
+        print output_string_1
+        print output_string_2
+        print "="*len(output_string_1)
+        output_string_1 = "    "
+        output_string_2 = "XOR "
+        output_string_3 = "    "
+
+        zb_coeffs = z.b_coeffs[::-1]
+
+        if len(zb_coeffs) < len(xb_coeffs):
+            for i in range(len(xb_coeffs) - len(zb_coeffs)):
+                zb_coeffs.append("0")
+
+        for a,b,c in zip(xb_coeffs[::-1], yb_coeffs[::-1], zb_coeffs[::-1]):
+            longest = a
+
+            if len(longest) < len(b):
+                longest = b
+            if len(longest) < len(c):
+                longest = c
+
+            a = "0"*(len(longest)-len(a)) + a
+            b = "0"*(len(longest)-len(b)) + b
+            c = "0"*(len(longest)-len(c)) + c
+
+            output_string_1 += "%s " %str(a)
+            output_string_2 += "%s " %str(b)
+            output_string_3 += "%s " %str(c)
+
+        output_string_3 += " ===> "
+        for i in z.coeffs:
+            output_string_3 += "%d " %i
+
+        print "\n-------------------------------------------------------"
+        print "Convert the numbers into binary and perform bitwise XOR"
+        print "-------------------------------------------------------"
+        print "="*len(output_string_1)
+        print output_string_1
+        print output_string_2
+        print "_"*len(output_string_1)
+        print output_string_3
+        print "-------------------------------------------------------"
+
+        return z
+
     def add(self, x, y):
         """
         Accepts Polynomial x and y and returns
@@ -12,13 +96,17 @@ class GaloisFieldCalculator:
         """
         x_coeffs = x.coeffs[::-1]
         y_coeffs = y.coeffs[::-1]
+        xb_coeffs = x.b_coeffs[::-1]
+        yb_coeffs = y.b_coeffs[::-1]
 
         if x.degree > y.degree:
             for i in range(x.degree - y.degree):
                 y_coeffs.append(0)
+                yb_coeffs.append("0")
         elif y.degree > x.degree:
             for i in range(y.degree - x.degree):
                 x_coeffs.append(0)
+                xb_coeffs.append("0")
 
         z_coeff = []
         for i in range(0, len(x_coeffs)):
@@ -30,12 +118,24 @@ class GaloisFieldCalculator:
 
         return z
             
+    def detailed_subtract(self, x, y):
+        """
+        Verbose version of subtract operation
+        """
+
+        return self.detailed_add(x, y)
+
     def subtract(self, x, y):
         """
         Accepts Polynomial x, y and returns
         Polynomial as difference
         """
         return self.add(x,y)
+
+    def detailed_multiply(self, x, y):
+        z = self.multiply(x, y)
+
+        return z
 
     def multiply(self, x, y):
         """
@@ -67,6 +167,10 @@ class GaloisFieldCalculator:
 
         return Sum
 
+    def detailed_divide(self, x, y):
+        q,r = self.divide(x, y)
+
+        return (q,r)
     def divide(self, x, y):
         """
         Accepts Polynomial x, y

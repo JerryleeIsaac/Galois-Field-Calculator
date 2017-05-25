@@ -30,23 +30,53 @@ while choice != 0:
     menu = "[1] Add\n[2] Subtract\n[3] Multiply\n[4] Divide\n[0] Exit\nInput: "
     choice = raw_input(menu)
 
-    print "\n\n"
     if choice == "1":
+        print "Given: "
         print "A(x) =", A
         print "B(x) =", B
-        print "A(x) + B(x) =", Calculator.add(A,B)
+        print "P(x) =", P
+        print "Operation: ADDITION"
+
+        print "\nStep By step solution:"
+        Sum = Calculator.detailed_add(A,B)
+
+        print "\nAnswer:"
+        print "A(x) + B(x) =", Sum
     elif choice == "2":
+        print "Given: "
         print "A(x) =", A
         print "B(x) =", B
-        print "A(x) - B(x) =", Calculator.subtract(A,B)
+        print "P(x) =", P
+        print "Operation: SUBTRACTION"
+
+        print "\nStep By step solution:"
+        Difference = Calculator.detailed_subtract(A,B)
+
+        print "\nAnswer:"
+        print "A(x) - B(x) =", Difference
     elif choice == "3":
+        print "Given: "
         print "A(x) =", A
         print "B(x) =", B
-        print "A(x) * B(x) =", Calculator.multiply(A,B)
+        print "P(x) =", P
+        print "Operation: MULTIPLICATION"
+
+        print "\nStep By step solution:"
+        Product = Calculator.detailed_multiply(A,B)
+
+        print "\nAnswer:"
+        print "A(x) * B(x) =", Product
     elif choice == "4":
+        print "Given: "
         print "A(x) =", A
         print "B(x) =", B
-        quotient, remainder = Calculator.divide(A,B)
+        print "P(x) =", P
+        print "Operation: DIVISION"
+
+        print "\nStep By step solution:"
+        quotient, remainder = Calculator.detailed_divide(A,B)
+
+        print "\nAnswer:"
         print "A(x) / B(x) =", quotient
         print "Remainder =", remainder
     else:
