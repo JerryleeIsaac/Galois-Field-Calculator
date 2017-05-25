@@ -135,6 +135,108 @@ class GaloisFieldCalculator:
     def detailed_multiply(self, x, y):
         z = self.multiply(x, y)
 
+        x_coeffs = x.coeffs[::-1]
+        y_coeffs = y.coeffs[::-1]
+        xb_coeffs = x.b_coeffs[::-1]
+        yb_coeffs = y.b_coeffs[::-1]
+
+        output_string_1 = ""
+        output_string_2 = ""
+        output_string_3 = ""
+        output_string_4 = ""
+
+        longer = len(x_coeffs)
+        if len(y_coeffs) > longer:
+            longer = len(y_coeffs)
+
+        for i in range(longer):
+            a = ""
+            b = ""
+            c = ""
+            d = ""
+            if i < len(x_coeffs):
+                a = str(x_coeffs[i])
+                c = xb_coeffs[i]
+            if i < len(y_coeffs):
+                b = str(y_coeffs[i])
+                d = xb_coeffs[i]
+            
+            l = len(a)
+            if l < len(b):
+                l = len(b)
+
+            lb = len(c)
+            if lb < len(d):
+                lb = len(d)
+
+            output_string_1 = "%*s " %(l, a) + output_string_1 
+            output_string_2 = "%*s " %(l, b) + output_string_2 
+            output_string_3 = "%*s " %(lb, c) + output_string_3 
+            output_string_4 = "%*s " %(lb, d) + output_string_4 
+
+        output_string_1 = "  " + output_string_1
+        output_string_2 = "* " + output_string_2
+        output_string_3 = "  " + output_string_3
+        output_string_4 = "* " + output_string_4
+
+        sum_rows = [
+            i.b_coeffs[::-1] for i in self.multiply_partial_sums
+        ]
+        sum_rows.append(z.b_coeffs[::-1])
+        os_rows = [
+            "" for i in sum_rows
+        ]
+
+        longest = len(sum_rows[-1])
+
+        for i in range(longest):
+            mod = []
+            for row in sum_rows:
+                if i < len(row):
+                    mod.append(row[i])
+                else:
+                    mod.append("")
+
+            l = 0
+            for j in mod:
+                if l < len(j):
+                    l = len(j)
+
+            for j in range(len(sum_rows)):
+                os_rows[j] = "0"*(l - len(mod[j])) + "%s " % mod[j] + os_rows[j]
+        
+        os_rows[-2] = "XOR " + os_rows[-2]
+        longest = len(os_rows[-2])
+
+        s = ""
+        for i in z.coeffs:
+            s += "%d " % i
+        
+        print "-------------------------------------------------------------"
+        print "Align all coefficients, removing the '+' symbol between terms"
+        print "-------------------------------------------------------------"
+        print "="*len(output_string_1)
+        print output_string_1
+        print output_string_2
+        print "="*len(output_string_1)
+        print "\n-------------------------------------------------------------"
+        print "Convert each coefficient to their GF(2^m) representation"
+        print "Multiply using long (every coefficient of A with every)"
+        print "coefficient of B) multplication and reduce using"
+        print "{}".format(self.p.b_coeffs)
+        print "After that, perform bitwise XOR to each element to get the"
+        print "product"
+        print "-------------------------------------------------------------"
+        print "="*longest
+        print "%*s" %(longest, output_string_3)
+        print "%*s" %(longest, output_string_4)
+        print "-"*longest
+        for i in os_rows[:-1]:
+            print "%*s" %(longest, i)
+        print "_"*longest
+        print "%*s" %(longest, os_rows[-1]), "==>", s
+        
+
         return z
 
     def multiply(self, x, y):
@@ -142,7 +244,7 @@ class GaloisFieldCalculator:
         Accepts Polynomial x, y
         and returns Polynomial product
         """
-        sums = []
+        self.multiply_partial_sums = []
         x_coeffs = x.coeffs[::-1]
         y_coeffs = y.coeffs[::-1]
 
@@ -157,13 +259,13 @@ class GaloisFieldCalculator:
                 prod = self._gf_multiply(b_x, b_y)
                 prod_list.insert(0, int(prod, 2))
 
-            sums.append(Polynomial())
-            sums[-1].import_coeffs(prod_list)
+            self.multiply_partial_sums.append(Polynomial())
+            self.multiply_partial_sums[-1].import_coeffs(prod_list)
 
-        Sum = sums[0]
+        Sum = self.multiply_partial_sums[0]
         
-        for i in range(1, len(sums)):
-            Sum = self.add(Sum, sums[i])
+        for i in range(1, len(self.multiply_partial_sums)):
+            Sum = self.add(Sum, self.multiply_partial_sums[i])
 
         return Sum
 
