@@ -317,8 +317,8 @@ class GaloisFieldCalculator:
             justice = justice.format(
                 y_string, Q.coeffs[k],
                 prev[0], y_coeffs[0], "0b"+self.p.b_coeffs, 
-                bin(prev[0]), y.b_coeffs[0], "0b"+self.p.b_coeffs,
-                bin(prev[0]), self._gf_inverse(y.b_coeffs[0]), "0b"+self.p.b_coeffs
+                bin(prev[0]), "0b"+y.b_coeffs[0], "0b"+self.p.b_coeffs,
+                bin(prev[0]), "0b"+self._gf_inverse(y.b_coeffs[0]), "0b"+self.p.b_coeffs
             )
             d_string = "%*s" %(len(os_2), d_string)
             r_string = "%*s" %(len(os_2), r_string)
