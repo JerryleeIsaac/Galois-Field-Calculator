@@ -6,6 +6,10 @@ class GaloisFieldCalculator:
         self.p = p
 
     def add(self, x, y):
+        """
+        Accepts Polynomial x and y and returns
+        Polynomial z as sum
+        """
         x_coeffs = x.coeffs[::-1]
         y_coeffs = y.coeffs[::-1]
 
@@ -27,12 +31,20 @@ class GaloisFieldCalculator:
         return z
             
     def subtract(self, x, y):
+        """
+        Accepts Polynomial x, y and returns
+        Polynomial as difference
+        """
         return self.add(x,y)
 
     def multiply(self, x, y):
+        """
+        Accepts Polynomial x, y
+        and returns Polynomial product
+        """
         sums = []
-        x_coeffs = x.b_coeffs[::-1]
-        y_coeffs = y.b_coeffs[::-1]
+        x_coeffs = x.coeffs[::-1]
+        y_coeffs = y.coeffs[::-1]
 
         for y_digit in range(len(y_coeffs)):
             prod_list = [
@@ -40,8 +52,10 @@ class GaloisFieldCalculator:
             ]
 
             for x_digit in range(len(x_coeffs)):
-                prod = self._binary_multiply(x_coeffs[x_digit], y_coeffs[y_digit])
-                prod_list.insert(0, prod)
+                b_x = bin(x_coeffs[x_digit])[2:]
+                b_y = bin(y_coeffs[y_digit])[2:]
+                prod = self._gf_multiply(b_x, b_y)
+                prod_list.insert(0, int(prod, 2))
 
             sums.append(Polynomial())
             sums[-1].import_coeffs(prod_list)
@@ -54,42 +68,102 @@ class GaloisFieldCalculator:
         return Sum
 
     def divide(self, x, y):
-        pass
-    
-    def _binary_reduce(self, x):
-        return self._binary_division(x, self.p.b_coeffs)[1]
+        """
+        Accepts Polynomial x, y
+        returns Polynomial quotient and remainder
+        """
+        x_coeffs = x.coeffs
+        y_coeffs = y.coeffs
 
-    def _binary_division(self, x, y):
-        remainder = x
-            
-        num_len = len(x)
-        den_len = len(y)
+        remainder = x_coeffs
 
-        quotient = ""
+        num_len = len(x_coeffs)
+        den_len = len(y_coeffs)
 
-        # print "%20s, %20s, %20s" % ("num/remainder", "den", "quotient")
+        quotient = []
+
+        den = [i for i in y_coeffs]
         while num_len >= den_len:
             diff = num_len - den_len
-            remainder = "0"*(num_len - len(remainder)) + remainder
 
-            den = self.p.b_coeffs + "0"*diff
+            den = den[:den_len]
+            den += [0 for i in range(diff)]
 
-            if remainder[0] == "1":
-                remainder = bin(int(remainder, 2) ^ int(den, 2))[2:]
-                quotient += "1"
+            # print "%20s, %20s" %(remainder, den)
+            # print len(den), len(remainder)
+
+            if len(den) <= len(remainder):
+                b_rem = bin(remainder[0])[2:]
+                b_den = bin(den[0])[2:]
+                
+                q = int(self._gf_divide(b_rem, b_den), 2)
+                quotient.append(q)
+                
+                Q = Polynomial()
+                Q.import_coeffs([q])
+
+                D = Polynomial()
+                D.import_coeffs(den)
+
+                D = self.multiply(D, Q)
+                R = Polynomial()
+                R.import_coeffs(remainder)
+
+                remainder = self.subtract(R,D).coeffs
             else:
-                remainder = remainder[1:]
-                quotient += "0"
+                quotient.append(0)
 
             num_len -= 1
-            # print "%20s, %20s, %20s" % (remainder, den, quotient)
 
-        if not quotient:
-            quotient = "0"
+        # print quotient, remainder
 
-        return (quotient, remainder)
-        
-    def _binary_multiply(self, x, y):
+        Q = Polynomial()
+        R = Polynomial()
+
+        Q.import_coeffs(quotient)
+        R.import_coeffs(remainder)
+
+        return (Q,R)
+
+    
+    def _gf_divide(self, x, y):
+        """
+        Accepts x as numerator, y as denominator. Binary format
+        Calls inverse of y and then multiplies
+        Returns binary format
+        """
+        return self._gf_multiply(x, self._gf_inverse(y))
+
+    def _gf_reduce(self, x):
+        """
+        Accepts binary x of format "0000"
+        and reduces it using the irreducible polynomial
+        Returns binary format
+        """
+        return self._binary_divide(x, self.p.b_coeffs)[1]
+
+    def _gf_inverse(self, x):
+        t = bin(0)[2:]
+        r = self.p.b_coeffs
+        new_t = bin(1)[2:]
+        new_r = x
+
+        while int(new_r,2) != 0:
+            quotient, remainder = self._binary_divide(r, new_r)
+            r, new_r = new_r, remainder
+            d = self._gf_multiply(quotient, new_t)
+            t, new_t = new_t, bin(int(t,2) ^ int(d,2))[2:]
+
+        if int(r,2) > 1:
+            raise Exception("{} is not invertible".format(x))
+
+        return t
+
+    def _gf_multiply(self, x, y):
+        """
+        Accepts binary strings x,y of format "00101010"
+        Returns binary string
+        """
         b_sums = []
         by_coeffs = y[::-1]
         bx_coeffs = x[::-1]
@@ -111,9 +185,47 @@ class GaloisFieldCalculator:
         # print b_sums
         # print sum_string
 
-        product = int(self._binary_reduce(sum_string), 2)
+        product = self._gf_reduce(sum_string)
 
         return product
+
+    def _binary_divide(self, x, y):
+        """
+        Accepts x and y as binary and performs
+        long division with modulo 2.
+        Returns binary quotient and remainder
+        """
+        remainder = x
+
+        # print "num: {}, den: {}".format(x,y)
+            
+        num_len = len(x)
+        den_len = len(y)
+
+        quotient = ""
+
+        # print "%20s, %20s, %20s" % ("num/remainder", "den", "quotient")
+        while num_len >= den_len:
+            diff = num_len - den_len
+            remainder = "0"*(num_len - len(remainder)) + remainder
+
+            den = y + "0"*diff
+
+            # print "%20s, %20s, %20s" % (remainder, den, quotient)
+            if remainder[0] == "1":
+                remainder = bin(int(remainder, 2) ^ int(den, 2))[2:]
+                quotient += "1"
+            else:
+                remainder = remainder[1:]
+                quotient += "0"
+
+            num_len -= 1
+
+        if not quotient:
+            quotient = "0"
+
+        # print "q: {}, r:{}".format(quotient, remainder)
+        return (quotient, remainder)
         
 
 if __name__ == "__main__":
@@ -133,27 +245,22 @@ if __name__ == "__main__":
         
         Sum = Calculator.add(A, B)
         
-        print "---------------------------------------------------"
         print "Sum of {} and {}".format(A, B)
-        print "==================================================="
         print Sum
-        print "---------------------------------------------------"
 
         Difference = Calculator.subtract(A, B)
         
-        print "---------------------------------------------------"
         print "Difference of {} and {}".format(A, B)
-        print "==================================================="
         print Difference 
-        print "---------------------------------------------------"
 
         Product = Calculator.multiply(A,B)
 
-        print "---------------------------------------------------"
         print "Product of {} and {}".format(A, B)
-        print "==================================================="
         print Product 
-        print "---------------------------------------------------"
 
-        # P = Polynomial("1 1 1 0", True)
-        # c = GaloisFieldCalculator(P)
+        Quotient, Remainder = Calculator.divide(A,B)
+
+        print "Quotient and Remainder of {} and {}".format(A, B)
+        print Quotient, "and", Remainder
+
+        # print Calculator._gf_divide("111", "100")

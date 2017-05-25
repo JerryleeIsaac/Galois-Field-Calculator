@@ -18,7 +18,11 @@ class Polynomial:
 
 
     def import_coeffs(self, x):
-        self.coeffs = x
+        self.coeffs = []
+        for coeff in x:
+            if self.coeffs or coeff:
+                self.coeffs.append(coeff)
+
         self.b_coeffs = [
             bin(coeff)[2:] for coeff in self.coeffs
         ]
