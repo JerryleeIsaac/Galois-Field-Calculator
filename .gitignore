@@ -3,3 +3,4 @@ input_parser.pyc
 polynomial.pyc
 *.swp
 report
+code/*.pyc
