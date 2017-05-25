@@ -8,10 +8,11 @@ Clone the repository in your machine
 
 ```
 git clone https://github.com/JerryleeIsaac/Galois-Field-Calculator.git GaloisFieldCalculator
-cd GaloisFieldCalculator
 ```
 
 # How to use
+
+`cd GaloisFieldCalculator/code`
 
 ## For unix systems
 
@@ -21,7 +22,7 @@ If the above command doesnt work, try this command `chmod +x main.py` and then `
 
 ## For windows
 
-Download python
+Download python2.7
 
 `python main.py`
 
