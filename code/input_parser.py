@@ -26,12 +26,12 @@ class InputParser:
         polynomial_strings = string_input.split(',')
 
         for polynomial in polynomial_strings:
-            cls._valid_characters_check(polynomial)
+            cls.valid_characters_check(polynomial)
 
         return polynomial_strings
 
     @classmethod
-    def _valid_characters_check(cls, x):
+    def valid_characters_check(cls, x):
         """
         This function checks whether all inputs are of only
         valid characters

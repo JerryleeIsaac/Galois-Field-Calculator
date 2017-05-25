@@ -63,5 +63,7 @@ class Polynomial:
 
             if i != self.degree:
                 string += " + "
+        if string == "":
+            string = "0"
 
         return string

@@ -231,7 +231,11 @@ class GaloisFieldCalculator:
 if __name__ == "__main__":
     cases = InputParser.read_inputs()
 
+    i = 0
     for case in cases:
+        print "\n\n\nCase {}".format(i+1)
+        i += 1
+
         polynomial_strings = InputParser.separate_polynomials(case)
         A_string = polynomial_strings[0]
         B_string = polynomial_strings[1]
@@ -260,7 +264,10 @@ if __name__ == "__main__":
 
         Quotient, Remainder = Calculator.divide(A,B)
 
-        print "Quotient and Remainder of {} and {}".format(A, B)
-        print Quotient, "and", Remainder
+        print "Quotient {} and {}".format(A, B)
+        print Quotient
+        if Remainder.coeffs:
+            print "Remainder:"
+            print Remainder
 
         # print Calculator._gf_divide("111", "100")
