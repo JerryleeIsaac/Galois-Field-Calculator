@@ -270,9 +270,71 @@ class GaloisFieldCalculator:
         return Sum
 
     def detailed_divide(self, x, y):
-        q,r = self.divide(x, y)
+        Q,R = self.divide(x, y)
 
-        return (q,r)
+        y_coeffs = y.coeffs
+        
+
+        x_string = ""
+        y_string = ""
+        q_string = ""
+
+        for i in y_coeffs:
+            y_string += "%d " %(i)
+
+        for i in self.remainders[0]:
+            x_string += "%d " %(i)
+
+        for i in Q.coeffs:
+            q_string += "%d " %(i)
+
+        if len(y_coeffs) > len(x.coeffs):
+            print "Numerator less than denominator. Reminader is {}".format(x_string)
+            return (Q, R)
+
+        os_2 = y_string + "|" + x_string
+        line = "%*s" %(len(os_2), "-"*(len(x_string)+1))
+        os_1 = "%*s" %(len(os_2), q_string)
+
+        print '---------------------------------------------'
+        print os_1, "==> Quotient"
+        print line
+        print os_2
+
+        k = 0
+        l = len(self.dens)
+        prev = self.remainders[0]
+        for (d,r) in zip(self.dens, self.remainders[1:]):
+            d_string = ""
+            r_string = ""
+            for i in d:
+                d_string += "%d " %(i)
+
+            for i in r:
+                r_string += "%d " %(i)
+
+            justice ="==> {} * ({} = {} / {} mod {} = {} / {} mod {} = {} * {} mod {})"
+            justice = justice.format(
+                y_string, Q.coeffs[k],
+                prev[0], y_coeffs[0], "0b"+self.p.b_coeffs, 
+                bin(prev[0]), y.b_coeffs[0], "0b"+self.p.b_coeffs,
+                bin(prev[0]), self._gf_inverse(y.b_coeffs[0]), "0b"+self.p.b_coeffs
+            )
+            d_string = "%*s" %(len(os_2), d_string)
+            r_string = "%*s" %(len(os_2), r_string)
+            prev = r 
+            print d_string, justice
+            print line
+            print r_string,
+            if k == l - 1:
+                print "==> Remainder"
+            else:
+                print
+            
+            k+=1
+        
+        return (Q,R)
+
     def divide(self, x, y):
         """
         Accepts Polynomial x, y
@@ -291,9 +353,8 @@ class GaloisFieldCalculator:
         self.dens = []
         self.remainders = []
         den = [i for i in y_coeffs]
-        self.dens.append(den)
-        self.remainders.append(remainder)
 
+        self.remainders.append(remainder)
         while num_len >= den_len:
             diff = num_len - den_len
 
@@ -317,15 +378,17 @@ class GaloisFieldCalculator:
                 D.import_coeffs(den)
 
                 D = self.multiply(D, Q)
+                self.dens.append(D.coeffs)
                 R = Polynomial()
                 R.import_coeffs(remainder)
 
                 remainder = self.subtract(R,D).coeffs
             else:
                 quotient.append(0)
-
-            self.dens.append(den)
+                d = [0 for i in den]
+                self.dens.append(d)
             self.remainders.append(remainder)
+
             num_len -= 1
 
         # print quotient, remainder
